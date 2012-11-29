@@ -1,0 +1,29 @@
+{
+    "name": "fof/dataview-bundle",
+    "description": "",
+    "authors": [
+        {
+            "name": "George Zankevich",
+            "email": "gzankevich@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "data-view": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*@stable"
+    },
+    "suggest": {
+        "doctrine/orm": "2.3.*"
+    },
+    "config": {
+        "bin-dir": "bin/"
+    },
+    "autoload": {
+        "psr-0": { 
+            "FOF": "src/" 
+        }
+    },
+    "minimum-stability": "dev"
+}
