@@ -1,0 +1,40 @@
+{% block filters %}
+    {% for filter in dataView.filters %}
+
+    {% endfor %}
+{% endblock filters %}
+
+
+{% block results %}
+    {% block tableTag %}
+        <table>
+    {% endblock tableTag %}
+
+        <thead>
+            <tr>
+                {% for column in dataView.columns %}
+                    <th>
+                        {{ column.label }}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for result in dataView.pager %}
+                <tr>
+                    {% for column in dataView.columns %}
+                        <td>
+                            {{ attribute(dataView, 'getEntityValueByPropertyPath', [result, column.displayPropertyPath]) }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock results %}
+
+{% block pagination %}
+    <span>{{ dataView.pager.nbResults }} total</span>
+{% endblock pagination %}
