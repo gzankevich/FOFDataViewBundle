@@ -4,37 +4,44 @@
     {% endfor %}
 {% endblock filters %}
 
-
-{% block results %}
-    {% block tableTag %}
-        <table>
-    {% endblock tableTag %}
-
+{% block table %}
+    <table>
         <thead>
-            <tr>
-                {% for column in dataView.columns %}
-                    <th>
-                        {{ column.label }}
-                    </th>
-                {% endfor %}
-            </tr>
+            {{ block('headings') }}
         </thead>
-
         <tbody>
-            {% for result in dataView.pager %}
-                <tr>
-                    {% for column in dataView.columns %}
-                        <td>
-                            {{ attribute(dataView, 'getEntityValueByPropertyPath', [result, column.displayPropertyPath]) }}
-                        </td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
+            {{ block('results') }}
         </tbody>
-
     </table>
-{% endblock results %}
+{% endblock table %}
 
 {% block pagination %}
-    <span>{{ dataView.pager.nbResults }} total</span>
+    <hr/>
+    <span>Found {{ dataView.pager.nbResults }} records</span>
 {% endblock pagination %}
+
+
+{# the blocks below are used by the blocks above #}
+<hr/>
+{% block headings %}
+    <tr>
+        {% for column in dataView.columns %}
+            <th>
+                <label for="sort_{{ column.templateFriendlyPropertyPath }}">{{ column.label }}</label>
+                <input name="sort_{{ column.templateFriendlyPropertyPath }}" value="{{ column.inverseSortOrder }}" type="submit" />
+            </th>
+        {% endfor %}
+    </tr>
+{% endblock headings %}
+
+{% block results %}
+    {% for result in dataView.pager %}
+        <tr>
+            {% for column in dataView.columns %}
+                <td>
+                    {{ attribute(dataView, 'getEntityValueByPropertyPath', [result, column.displayPropertyPath]) }}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+{% endblock results %}
