@@ -39,9 +39,14 @@
         <tr>
             {% for column in dataView.columns %}
                 <td>
-                    {{ attribute(dataView, 'getEntityValueByPropertyPath', [result, column.displayPropertyPath]) }}
+                    {% if column.twigBlockName is not null %}
+                        {{ block(column.twigBlockName) }}
+                    {% else %}
+                        {{ attribute(dataView, 'getEntityValueByPropertyPath', [result, column.displayPropertyPath]) }}
+                    {% endif %}
                 </td>
             {% endfor %}
         </tr>
     {% endfor %}
 {% endblock results %}
+

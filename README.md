@@ -68,7 +68,7 @@ $dataView->addColumn(new \DataView\Column('company.name'));
 $dataView->addColumn(new \DataView\Column(
     'office_contact_associations.office_contact.first_name',
     // the heading to show for this column on the HTML table
-    'Contacts',
+    'Main Contact',
     // where Office->getPrimaryContact() gets the main contact
     // and OfficeContact->getFullName() returns the first and last names joined together
     // i.e. primary_contact and full_name are not actual database columns but only exist as methods on the entities
@@ -88,4 +88,29 @@ $handler->bind($dataView, $this->getRequest());
 return $this->render('AcmeDemoBundleBundle:Office:list.html.twig', array(
     'dataView' => $dataView, 
 ));
+```
+
+
+
+What if we want to display all of the many-to-many's in a <ul>?
+
+```php
+$dataView->addColumn(new \DataView\Column(
+    'office_contact_associations',
+    'All Contacts',
+    null,
+    // the twig block 'office_contacts' will be called when rendering the contents of the cells in this column
+    'office_contacts'
+));
+```
+
+```twig
+{% block office_contacts %}
+    <ul>
+        {# result is the current record in the pager - i.e. an instance of Office, in this case #}
+        {% for officeContactAssociation in result.officeContactAssociations %}
+            <li>{{ officeContactAssociation.officeContact.fullName }}</li>
+        {% endfor %}
+    </ul>
+{% endblock office_contacts %}
 ```
