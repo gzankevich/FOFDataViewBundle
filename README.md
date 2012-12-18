@@ -92,7 +92,7 @@ return $this->render('AcmeDemoBundleBundle:Office:list.html.twig', array(
 
 
 
-What if we want to display all of the many-to-many's in a <ul>?
+What if we want to display all of the many-to-many's in a ul?
 
 ```php
 $dataView->addColumn(new \DataView\Column(
