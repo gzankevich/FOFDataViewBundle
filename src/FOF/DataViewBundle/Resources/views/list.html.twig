@@ -27,8 +27,12 @@
     <tr>
         {% for column in dataView.columns %}
             <th>
-                <label for="sort_{{ column.templateFriendlyPropertyPath }}">{{ column.label }}</label>
-                <input name="sort_{{ column.templateFriendlyPropertyPath }}" value="{{ column.inverseSortOrder }}" type="submit" />
+                {% if column.isSortable %}
+                    <label for="sort_{{ column.templateFriendlyPropertyPath }}">{{ column.label }}</label>
+                    <input name="sort_{{ column.templateFriendlyPropertyPath }}" value="{{ column.inverseSortOrder }}" type="submit" />
+                {% else %}
+                   {{ column.label }} 
+                {% endif %}
             </th>
         {% endfor %}
     </tr>
