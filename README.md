@@ -58,6 +58,8 @@ Create a controller:
 
 ```php
 $dataView = new \DataView\DataView(new \DataView\Adapter\DoctrineORM($this->getEntityManager()));
+
+// the data source can be a string specifying which entity type to use or a QueryBuilder instance
 $dataView->setSource('AcmeDemoBundle:Office');
 
 $dataView->addColumn(new \DataView\Column('address'));
@@ -76,20 +78,15 @@ $dataView->addColumn(new \DataView\Column(
 ));
 
 
-// this is just a regular Pagerfanta instance which is populated by the result of the above code
-$pager = $dataView->getPager();
-$pager->setCurrentPage(1);
-
-
 // this handles events such as the user clicking on a column to sort on it, adding a filter or paginating
-$handler = new \FOF\DataViewBundle\Lib\DataViewRequestHandler();
-$handler->bind($dataView, $this->getRequest());
+$dataViewRequestHandler = $this->get('data_view_request_handler');
+$dataViewRequestHandler->bind($dataView, $this->getRequest());
 
 return $this->render('AcmeDemoBundleBundle:Office:list.html.twig', array(
     'dataView' => $dataView, 
+    'form' => $dataViewRequestHandler->getForm()->createView(),
 ));
 ```
-
 
 
 What if we want to display all of the many-to-many's in a ul?
@@ -100,7 +97,9 @@ $dataView->addColumn(new \DataView\Column(
     'All Contacts',
     null,
     // the twig block 'office_contacts' will be called when rendering the contents of the cells in this column
-    'office_contacts'
+    'office_contacts',
+    // disables sorting and filter on this column since it is not possible
+    false
 ));
 ```
 
