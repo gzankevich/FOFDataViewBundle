@@ -1,0 +1,4 @@
+services:
+    data_view_request_handler:
+        class: FOF\DataViewBundle\Lib\DataViewRequestHandler
+        arguments: [@form.factory, @session]
