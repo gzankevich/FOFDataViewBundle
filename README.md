@@ -57,35 +57,38 @@ Then create a template for your list page:
 Create a controller:
 
 ```php
-$dataView = new \DataView\DataView(new \DataView\Adapter\DoctrineORM($this->getEntityManager()));
+public function listAction()
+{
+    $dataView = new \DataView\DataView(new \DataView\Adapter\DoctrineORM($this->getEntityManager()));
 
-// the data source can be a string specifying which entity type to use or a QueryBuilder instance
-$dataView->setSource('AcmeDemoBundle:Office');
+    // the data source can be a string specifying which entity type to use or a QueryBuilder instance
+    $dataView->setSource('AcmeDemoBundle:Office');
 
-$dataView->addColumn(new \DataView\Column('address'));
-// one-to-one relationship
-$dataView->addColumn(new \DataView\Column('company.name'));
+    $dataView->addColumn(new \DataView\Column('address'));
+    // one-to-one relationship
+    $dataView->addColumn(new \DataView\Column('company.name'));
 
-// many-to-many relationship
-$dataView->addColumn(new \DataView\Column(
-    'office_contact_associations.office_contact.first_name',
-    // the heading to show for this column on the HTML table
-    'Main Contact',
-    // where Office->getPrimaryContact() gets the main contact
-    // and OfficeContact->getFullName() returns the first and last names joined together
-    // i.e. primary_contact and full_name are not actual database columns but only exist as methods on the entities
-    'primaryContact.fullName'
-));
+    // many-to-many relationship
+    $dataView->addColumn(new \DataView\Column(
+        'office_contact_associations.office_contact.first_name',
+        // the heading to show for this column on the HTML table
+        'Main Contact',
+        // where Office->getPrimaryContact() gets the main contact
+        // and OfficeContact->getFullName() returns the first and last names joined together
+        // i.e. primary_contact and full_name are not actual database columns but only exist as methods on the entities
+        'primaryContact.fullName'
+    ));
 
 
-// this handles events such as the user clicking on a column to sort on it, adding a filter or paginating
-$dataViewRequestHandler = $this->get('data_view_request_handler');
-$dataViewRequestHandler->bind($dataView, $this->getRequest());
+    // this handles events such as the user clicking on a column to sort on it, adding a filter or paginating
+    $dataViewRequestHandler = $this->get('data_view_request_handler');
+    $dataViewRequestHandler->bind($dataView, $this->getRequest());
 
-return $this->render('AcmeDemoBundleBundle:Office:list.html.twig', array(
-    'dataView' => $dataView, 
-    'form' => $dataViewRequestHandler->getForm()->createView(),
-));
+    return $this->render('AcmeDemoBundleBundle:Office:list.html.twig', array(
+        'dataView' => $dataView, 
+        'form' => $dataViewRequestHandler->getForm()->createView(),
+    ));
+}
 ```
 
 
