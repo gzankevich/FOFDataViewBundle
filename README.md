@@ -116,3 +116,22 @@ $dataView->addColumn(new \DataView\Column(
     </ul>
 {% endblock office_contacts %}
 ```
+
+
+Need an "actions" column (with edit/delete links)?
+
+In the controller:
+
+```php
+$dataView->addColumn(new \DataView\Column(null, '', null, 'actions_column'));
+```
+
+In the template:
+```twig
+{% block actions_column %}
+    <ul>
+        <li></li>
+        <li></li>
+    </ul>
+{% endblock %}
+```
