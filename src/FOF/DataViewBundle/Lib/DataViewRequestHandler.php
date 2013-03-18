@@ -10,6 +10,8 @@ use FOF\DataViewBundle\Form\Type\DataViewType;
 
 class DataViewRequestHandler
 {
+    const SESSION_KEY = 'data_view';
+
     protected $form, $formFactory, $session = null;
     protected $isBound = false;
 
@@ -33,35 +35,35 @@ class DataViewRequestHandler
         // initial page load
         if($request->getMethod() == 'GET') {
             $this->clearSessionSettings();
+        } else {
+            $this->handleFilters($dataView, $request);
+
+            // this will set the initial values on the DataView
+            $this->loadSessionSettings($dataView);
+
+            // these will override those values
+            $this->handleSort($dataView, $request);
+            $this->handlePagination($dataView, $request);
+
+            $this->saveSessionSettings($dataView);
         }
-
-        $this->handleFilters($dataView, $request);
-
-        // this will set the initial values on the DataView
-        $this->loadSessionSettings($dataView);
-
-        // these will override those values
-        $this->handleSort($dataView, $request);
-        $this->handlePagination($dataView, $request);
-
-        $this->saveSessionSettings($dataView);
     }
 
     protected function clearSessionSettings()
     {
-        $this->session->clear('data_view');
+        $this->session->clear(self::SESSION_KEY);
     }
 
     protected function loadSessionSettings($dataView)
     {
-        $settings = $this->session->get('data_view');
+        $settings = $this->session->get(self::SESSION_KEY);
 
         $dataView->getPager()->setCurrentPage(intval($settings['page']));
     }
 
     protected function saveSessionSettings($dataView)
     {
-        $this->session->set('data_view', array(
+        $this->session->set(self::SESSION_KEY, array(
             'page' => $dataView->getPager()->getCurrentPage(), 
         ));
     }
