@@ -109,9 +109,9 @@ class DataViewRequestHandler
             if($name == 'pagination_first_page') {
                 $dataView->setCurrentPage(1);
             } elseif($name == 'pagination_previous_page') {
-                $dataView->setCurrentPage($dataView->getPager()->getCurrentPage() - 1);
+                $dataView->setCurrentPage($dataView->getCurrentPage() - 1);
             } elseif($name == 'pagination_next_page') {
-                $dataView->setCurrentPage($dataView->getPager()->getCurrentPage() + 1);
+                $dataView->setCurrentPage($dataView->getCurrentPage() + 1);
             } elseif($name == 'pagination_last_page') {
                 $dataView->setCurrentPage($dataView->getPager()->getNbPages());
             }

@@ -2,6 +2,7 @@
 
 namespace FOF\DataViewBundle\Test;
 
+use DataView\Test\BaseUnitTest;
 use FOF\DataViewBundle\Lib\DataViewRequestHandler;
 
 /**
@@ -9,7 +10,7 @@ use FOF\DataViewBundle\Lib\DataViewRequestHandler;
  *
  * @author George Zankevich <gzankevich@gmail.com>
  */
-class DataViewRequestHandlerTest extends \PHPUnit_Framework_TestCase
+class DataViewRequestHandlerTest extends BaseUnitTest 
 {
     /**
      * @covers DataViewRequestHandler::bind
@@ -36,7 +37,7 @@ class DataViewRequestHandlerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers DataViewRequestHandler::bind
-     * @covers DataViewRequestHandler::clearSessionSettings
+     * @covers DataViewRequestHandler::loadSessionSettings
      * @covers DataViewRequestHandler::saveSessionSettings
      */
     public function testBind_post()
@@ -61,4 +62,57 @@ class DataViewRequestHandlerTest extends \PHPUnit_Framework_TestCase
 
         $dataViewRequestHandler->bind($dataView, $request);
     }
+
+    /**
+     * @covers DataViewRequestHandler::handlePagination
+     */
+    public function testHandlePagination_firstPage()
+    {
+        $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
+        $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
+
+        $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
+        $dataView->expects($this->once())->method('setCurrentPage')->with($this->equalTo(1));
+
+        $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array(
+            'pagination_first_page' => ''
+        )));
+
+        $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->request = $parameterBag;
+
+        $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
+
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($dataView, $request));
+    }
+
+    /**
+     * @covers DataViewRequestHandler::handlePagination
+     */
+    public function testHandlePagination_lastPage()
+    {
+        $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
+        $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
+
+        $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
+        $pager->expects($this->once())->method('getNbPages')->will($this->returnValue(10));
+
+        $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
+        $dataView->expects($this->once())->method('setCurrentPage')->with($this->equalTo(10));
+        $dataView->expects($this->once())->method('getPager')->will($this->returnValue($pager));
+
+        $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array(
+            'pagination_last_page' => ''
+        )));
+
+        $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->request = $parameterBag;
+
+        $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
+
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($dataView, $request));
+    }
+
 }
