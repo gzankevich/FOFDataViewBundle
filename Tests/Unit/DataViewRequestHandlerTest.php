@@ -1,6 +1,6 @@
 <?php
 
-namespace FOF\DataViewBundle\Test;
+namespace FOF\DataViewBundle\Test\Unit;
 
 use DataView\Test\BaseUnitTest;
 use FOF\DataViewBundle\Lib\DataViewRequestHandler;

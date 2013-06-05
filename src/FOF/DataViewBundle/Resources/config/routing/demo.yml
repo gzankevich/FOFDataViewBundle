@@ -1,0 +1,4 @@
+data_view_demo:
+    pattern:  /demo
+    defaults: { _controller: "FOFDataViewBundle:Demo:list" }
+

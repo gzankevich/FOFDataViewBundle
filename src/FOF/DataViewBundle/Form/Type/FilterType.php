@@ -15,11 +15,11 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
  */
 class FilterType extends AbstractType
 {
-    private $columns = array();
+    private $columnChoices = array();
 
     public function __construct($columnChoices)
     {
-        $this->columns = $columnChoices;
+        $this->columnChoices = $columnChoices;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

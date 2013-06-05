@@ -1,0 +1,12 @@
+framework:
+    secret: foobar
+    templating: { engines: ['twig'] }
+    router: { resource: "%kernel.root_dir%/config/routing.yml" }
+    form: true
+    csrf_protection: true
+    session: 
+        storage_id: session.storage.filesystem
+    default_locale: en
+    translator: { fallback: en }
+    profiler: { only_exceptions: false }
+    test: ~
