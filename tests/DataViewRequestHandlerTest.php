@@ -58,8 +58,8 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $request->expects($this->once())->method('getMethod')->will($this->returnValue('POST'));
 
         $dataViewRequestHandler = $this->getMock('\FOF\DataViewBundle\Lib\DataViewRequestHandler', 
-            array('handleSort', 'handlePagination', 'handleFilters'), array($formFactory, $session));
-        $dataViewRequestHandler->expects($this->once())->method('handleSort')->with($this->equalTo($dataView), $this->equalTo($request));
+            array('handleSortOrder', 'handlePagination', 'handleFilters'), array($formFactory, $session));
+        $dataViewRequestHandler->expects($this->once())->method('handleSortOrder')->with($this->equalTo($dataView), $this->equalTo($request));
         $dataViewRequestHandler->expects($this->once())->method('handlePagination')->with($this->equalTo($pager), $this->equalTo($request));
         $dataViewRequestHandler->expects($this->once())->method('handleFilters')->with($this->equalTo($dataView), $this->equalTo($request));
 
@@ -149,4 +149,38 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 5));
     }
 
+    public function testHandleSort_none()
+    {
+        $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
+        $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
+
+        $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array()));
+
+        $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->request = $parameterBag;
+
+        $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
+
+        $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handleSortOrder', array($dataView, $request));
+    }
+
+    public function testHandleSort_desc()
+    {
+        $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
+        $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
+
+        $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
+        $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array('sort_name' => 'DESC')));
+
+        $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->request = $parameterBag;
+
+        $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
+        $dataView->expects($this->once())->method('applySortOrder')->with($this->equalTo('name'), $this->equalTo('DESC'));
+
+        $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handleSortOrder', array($dataView, $request));
+    }
 }

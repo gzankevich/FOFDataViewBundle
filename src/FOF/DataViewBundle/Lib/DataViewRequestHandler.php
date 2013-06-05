@@ -53,7 +53,7 @@ class DataViewRequestHandler
         } else {
             $sessionSettings = $this->loadSessionSettings($dataView);
 
-            $this->handleSort($dataView, $request);
+            $this->handleSortOrder($dataView, $request);
             // this must be done after setting the filters and sort order since it relies on the results already being pulled by the pager
             $this->handlePagination($dataView->getPager(), $request, intval($sessionSettings['page']));
 
@@ -125,11 +125,11 @@ class DataViewRequestHandler
      * @param Request $request The Request to read input from
      * @return null
      */
-    protected function handleSort(DataView $dataView, Request $request)
+    protected function handleSortOrder(DataView $dataView, Request $request)
     {
-        foreach($request->request->all() as $name => $order) {
-            if(strpos($name, 'sort_') === 0) {
-                $dataView->applySort(str_replace('__', '.', str_replace('sort_', '', $name)), $order);
+        foreach($request->request->all() as $columnName => $sortOrder) {
+            if(strpos($columnName, 'sort_') === 0) {
+                $dataView->applySortOrder(str_replace('__', '.', str_replace('sort_', '', $columnName)), $sortOrder);
                 return;
             }
         }
