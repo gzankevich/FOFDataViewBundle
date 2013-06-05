@@ -48,16 +48,19 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $session->expects($this->once())->method('get')->with($this->equalTo('data_view'))->will($this->returnValue(array('page' => 2)));
         $session->expects($this->once())->method('set')->with($this->equalTo('data_view'), $this->equalTo(array('page' => 3)));
 
+        $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
+        $pager->expects($this->once())->method('getCurrentPage')->will($this->returnValue(3));
+
         $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
-        $dataView->expects($this->once())->method('setCurrentPage')->with($this->equalTo(2));
-        $dataView->expects($this->once())->method('getCurrentPage')->will($this->returnValue(3));
+        $dataView->expects($this->exactly(2))->method('getPager')->will($this->returnValue($pager));
 
         $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->expects($this->once())->method('getMethod')->will($this->returnValue('POST'));
 
         $dataViewRequestHandler = $this->getMock('\FOF\DataViewBundle\Lib\DataViewRequestHandler', 
             array('handleSort', 'handlePagination', 'handleFilters'), array($formFactory, $session));
         $dataViewRequestHandler->expects($this->once())->method('handleSort')->with($this->equalTo($dataView), $this->equalTo($request));
-        $dataViewRequestHandler->expects($this->once())->method('handlePagination')->with($this->equalTo($dataView), $this->equalTo($request));
+        $dataViewRequestHandler->expects($this->once())->method('handlePagination')->with($this->equalTo($pager), $this->equalTo($request));
         $dataViewRequestHandler->expects($this->once())->method('handleFilters')->with($this->equalTo($dataView), $this->equalTo($request));
 
         $dataViewRequestHandler->bind($dataView, $request);
@@ -72,7 +75,6 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
 
         $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
-        $dataView->expects($this->once())->method('setCurrentPage')->with($this->equalTo(1));
 
         $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array(
@@ -82,9 +84,11 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
         $request->request = $parameterBag;
 
-        $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
+        $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
+        $pager->expects($this->once())->method('setCurrentPage')->with($this->equalTo(1));
 
-        $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($dataView, $request));
+        $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 10));
     }
 
     /**
@@ -97,10 +101,9 @@ class DataViewRequestHandlerTest extends BaseUnitTest
 
         $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
         $pager->expects($this->once())->method('getNbPages')->will($this->returnValue(10));
+        $pager->expects($this->once())->method('setCurrentPage')->with($this->equalTo(10));
 
         $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
-        $dataView->expects($this->once())->method('setCurrentPage')->with($this->equalTo(10));
-        $dataView->expects($this->once())->method('getPager')->will($this->returnValue($pager));
 
         $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array(
@@ -112,7 +115,7 @@ class DataViewRequestHandlerTest extends BaseUnitTest
 
         $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
 
-        $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($dataView, $request));
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 5));
     }
 
 }

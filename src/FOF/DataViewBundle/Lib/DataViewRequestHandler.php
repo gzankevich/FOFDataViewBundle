@@ -5,6 +5,7 @@ namespace FOF\DataViewBundle\Lib;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Pagerfanta\Pagerfanta;
 
 use DataView\Filter;
 use DataView\DataView;
@@ -21,6 +22,7 @@ class DataViewRequestHandler
 
     protected $form, $formFactory, $session = null;
     protected $isBound = false;
+    protected $currentPage = 1;
 
     /**
      * @param FormFactory $formFactory Used to instantiate the filter form
@@ -49,13 +51,11 @@ class DataViewRequestHandler
         if($request->getMethod() == 'GET') {
             $this->clearSessionSettings();
         } else {
-            // this will set the initial values on the DataView
-            $this->loadSessionSettings($dataView);
+            $sessionSettings = $this->loadSessionSettings($dataView);
 
-            // these will override those values
             $this->handleSort($dataView, $request);
-
-            $this->handlePagination($dataView, $request);
+            // this must be done after setting the filters and sort order since it relies on the results already being pulled by the pager
+            $this->handlePagination($dataView->getPager(), $request, intval($sessionSettings['page']));
 
             $this->saveSessionSettings($dataView);
         }
@@ -79,8 +79,7 @@ class DataViewRequestHandler
      */
     protected function loadSessionSettings(DataView $dataView)
     {
-        $settings = $this->session->get(self::SESSION_KEY);
-        $dataView->setCurrentPage(intval($settings['page']));
+        return $this->session->get(self::SESSION_KEY);
     }
 
     /**
@@ -92,7 +91,7 @@ class DataViewRequestHandler
     protected function saveSessionSettings(DataView $dataView)
     {
         $this->session->set(self::SESSION_KEY, array(
-            'page' => $dataView->getCurrentPage(), 
+            'page' => $dataView->getPager()->getCurrentPage(), 
         ));
     }
 
@@ -103,17 +102,17 @@ class DataViewRequestHandler
      * @param Request $request The Request to read input from
      * @return null
      */
-    protected function handlePagination(DataView $dataView, Request $request)
+    protected function handlePagination(Pagerfanta $pager, Request $request, $oldPage)
     {
         foreach($request->request->all() as $name => $order) {
             if($name == 'pagination_first_page') {
-                $dataView->setCurrentPage(1);
+                $pager->setCurrentPage(1);
             } elseif($name == 'pagination_previous_page') {
-                $dataView->setCurrentPage($dataView->getCurrentPage() - 1);
+                $pager->setCurrentPage($oldPage - 1);
             } elseif($name == 'pagination_next_page') {
-                $dataView->setCurrentPage($dataView->getCurrentPage() + 1);
+                $pager->setCurrentPage($oldPage + 1);
             } elseif($name == 'pagination_last_page') {
-                $dataView->setCurrentPage($dataView->getPager()->getNbPages());
+                $pager->setCurrentPage($pager->getNbPages());
             }
         }
 
