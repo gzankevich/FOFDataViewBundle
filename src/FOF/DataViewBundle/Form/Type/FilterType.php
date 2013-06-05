@@ -17,9 +17,9 @@ class FilterType extends AbstractType
 {
     private $columns = array();
 
-    public function __construct($columns)
+    public function __construct($columnChoices)
     {
-        $this->columns = $columns;
+        $this->columns = $columnChoices;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -27,7 +27,7 @@ class FilterType extends AbstractType
         $builder
             ->add('column_name', 'choice', array(
                 'required' => true,
-                'choices' => $this->columns,
+                'choices' => $this->columnChoices,
             ))
             ->add('comparison_type', 'choice', array(
                 'required' => true,

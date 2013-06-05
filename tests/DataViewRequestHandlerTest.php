@@ -4,6 +4,7 @@ namespace FOF\DataViewBundle\Test;
 
 use DataView\Test\BaseUnitTest;
 use FOF\DataViewBundle\Lib\DataViewRequestHandler;
+use FOF\DataViewBundle\Form\Type\DataViewType;
 
 /**
  * Unit test for DataViewRequestHandler
@@ -113,6 +114,9 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 5));
     }
 
+    /**
+     * @covers DataViewRequestHandler::handlePagination
+     */
     public function testHandlePagination_nextPage()
     {
         $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
@@ -131,6 +135,9 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 5));
     }
 
+    /**
+     * @covers DataViewRequestHandler::handlePagination
+     */
     public function testHandlePagination_previousPage()
     {
         $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
@@ -149,6 +156,9 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 5));
     }
 
+    /**
+     * @covers DataViewRequestHandler::handleSort
+     */
     public function testHandleSort_none()
     {
         $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
@@ -166,6 +176,9 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $this->callNonPublicMethod($dataViewRequestHandler, 'handleSortOrder', array($dataView, $request));
     }
 
+    /**
+     * @covers DataViewRequestHandler::handleSort
+     */
     public function testHandleSort_desc()
     {
         $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
@@ -182,5 +195,93 @@ class DataViewRequestHandlerTest extends BaseUnitTest
 
         $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
         $this->callNonPublicMethod($dataViewRequestHandler, 'handleSortOrder', array($dataView, $request));
+    }
+    
+    /**
+     * @covers DataViewRequestHandler::handleFilters
+     */
+    public function testHandleFilters_initialPageLoad()
+    {
+        $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
+
+        $dataViewType = $this->getMockBuilder('\FOF\DataViewBundle\Form\Type')->getMock();
+
+        $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
+        $dataView->expects($this->once())->method('getColumns')->will($this->returnValue(array()));
+
+        $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
+        $formFactory->expects($this->once())->method('create')->with($this->equalTo($dataViewType), $dataView);
+
+        $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
+
+        $dataViewRequestHandler = $this->getMock('\FOF\DataViewBundle\Lib\DataViewRequestHandler', 
+            array('getDataViewType'), array($formFactory, $session));
+        $dataViewRequestHandler->expects($this->once())->method('getDataViewType')->will($this->returnValue($dataViewType));
+
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handleFilters', array($dataView, $request));
+    }
+
+    /**
+     * @covers DataViewRequestHandler::handleFilters
+     */
+    public function testHandleFilters_post()
+    {
+        $session = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Session\Session')->disableOriginalConstructor()->getMock();
+
+        $dataViewType = $this->getMockBuilder('\FOF\DataViewBundle\Form\Type')->getMock();
+
+        $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
+        $dataView->expects($this->once())->method('getColumns')->will($this->returnValue(array()));
+
+        $request = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
+        $request->expects($this->once())->method('getMethod')->will($this->returnValue('POST'));
+
+        $form = $this->getMockBuilder('\Symfony\Component\Form\Form')->disableOriginalConstructor()->getMock();
+        $form->expects($this->once())->method('bind')->with($this->equalTo($request));
+
+        $formFactory = $this->getMockBuilder('\Symfony\Component\Form\FormFactory')->disableOriginalConstructor()->getMock();
+        $formFactory->expects($this->once())->method('create')->with($this->equalTo($dataViewType), $dataView)->will($this->returnValue($form));
+
+        $dataViewRequestHandler = $this->getMock('\FOF\DataViewBundle\Lib\DataViewRequestHandler', 
+            array('getDataViewType'), array($formFactory, $session));
+        $dataViewRequestHandler->expects($this->once())->method('getDataViewType')->will($this->returnValue($dataViewType));
+
+        $this->callNonPublicMethod($dataViewRequestHandler, 'handleFilters', array($dataView, $request));
+    }
+
+    /**
+     * @covers DataViewRequestHandler::getDataViewType
+     */
+    public function testGetDataViewType()
+    {
+        $dataViewRequestHandler = $this->getMockBuilder('\FOF\DataViewBundle\Lib\DataViewRequestHandler')
+            ->disableOriginalConstructor()->setMethods(array('getColumnChoices'))->getMock();
+        $dataViewRequestHandler->expects($this->once())->method('getColumnChoices')->with($this->equalTo(array()))->will($this->returnValue(array()));
+
+        $dataViewType = $this->callNonPublicMethod($dataViewRequestHandler, 'getDataViewType', array(array()));
+
+        $this->assertTrue($dataViewType instanceOf $dataViewType);
+    }
+
+    /**
+     * @covers DataViewRequestHandler::getColumnChoices
+     */
+    public function testGetColumnChoices()
+    {
+        $column1 = $this->getMockBuilder('\DataView\Column')->disableOriginalConstructor()->getMock();
+        $column1->expects($this->once())->method('isSortable')->will($this->returnValue(false));
+
+        $column2 = $this->getMock('\DataView\Column', array(), array('foo', 'bar'));
+        $column2->expects($this->once())->method('isSortable')->will($this->returnValue(true));
+        $column2->expects($this->once())->method('getPropertyPath')->will($this->returnValue('foo'));
+        $column2->expects($this->once())->method('getLabel')->will($this->returnValue('bar'));
+
+        $dataViewRequestHandler = $this->getMockBuilder('\FOF\DataViewBundle\Lib\DataViewRequestHandler')
+            ->disableOriginalConstructor()->getMock();
+
+        $columnChoices = $this->callNonPublicMethod($dataViewRequestHandler, 'getColumnChoices', array(array($column1, $column2)));
+
+        $this->assertEquals(array('foo' => 'bar'), $columnChoices);
     }
 }

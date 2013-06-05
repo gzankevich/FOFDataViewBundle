@@ -144,19 +144,43 @@ class DataViewRequestHandler
      */
     protected function handleFilters(DataView $dataView, Request $request)
     {
-        $columns = array();
-        foreach($dataView->getColumns() as $column) {
-            // sortable columns are not filterable either
-            if($column->isSortable()) {
-                $columns[$column->getPropertyPath()] = $column->getLabel();
-            }
-        }
-
-        $this->form = $this->formFactory->create(new DataViewType($columns), $dataView);
+        $this->form = $this->formFactory->create($this->getDataViewType($dataView->getColumns()), $dataView);
 
         if($request->getMethod() == 'POST') {
             $this->form->bind($request);
         }
+    }
+
+    /**
+     * Get an instance of the DataViewType
+     *
+     * @param array $columns An array of Column instances
+     * @returns DataViewType
+     */
+    protected function getDataViewType(array $columns)
+    {
+        return new DataViewType($this->getColumnChoices($columns));
+    }
+
+    /**
+     * Get an array of column choices for FilterType - key is the property path, value is the label
+     *
+     * This ignores columns which are not sortable.
+     *
+     * @param array $columns An array of Column instances
+     * @returns array
+     */
+    protected function getColumnChoices(array $columns)
+    {
+        $columnChoices = array();
+        foreach($columns as $column) {
+            // sortable columnChoices are not filterable either
+            if($column->isSortable()) {
+                $columnChoices[$column->getPropertyPath()] = $column->getLabel();
+            }
+        }
+
+        return $columnChoices;
     }
 
     /**

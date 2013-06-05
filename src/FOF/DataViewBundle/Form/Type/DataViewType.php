@@ -15,18 +15,18 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
  */
 class DataViewType extends AbstractType
 {
-    private $columns = array();
+    private $columnChoices = array();
 
-    public function __construct($columns)
+    public function __construct($columnChoices)
     {
-        $this->columns = $columns;
+        $this->columnChoices = $columnChoices;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('filters', 'collection', array(
-                'type'          => new FilterType($this->columns),
+                'type'          => new FilterType($this->columnChoices),
                 'allow_add'     => true,
                 'allow_delete'  => true,
                 'by_reference'  => false,
