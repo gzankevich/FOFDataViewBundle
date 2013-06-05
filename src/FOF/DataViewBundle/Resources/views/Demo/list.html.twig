@@ -1,0 +1,37 @@
+{% extends "FOFDataViewBundle:Demo:layout.html.twig" %}
+{% use "FOFDataViewBundle::blocks.html.twig" %}
+
+{% block content %}
+    <form action="{{ path('data_view_demo') }}" method="post">
+        {{ block('data_view') }} 
+    </form>
+
+    {# this needs to be outside of the form #}
+    {{ block('filter_prototype') }}
+{% endblock content %}
+
+{# a demonstration of how to display complex attributes #}
+{% block employees_column %}
+    <ul>
+        {% for employee in result.employees %}
+            {% if not employee.isCompanyOwner %}
+                <li>{{ employee.fullName }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock employees_column %}
+
+{# 
+    You will probably want to do something like this in your implementation:
+
+    <ul>
+        <li><a href="{{ path('company_edit', {'id': result.id} ) }}">Edit</a></li>
+        <li><a href="{{ path('company_delete', {'id': result.id} ) }}">Delete</a></li>
+    </ul>
+#}
+{% block actions_column %}
+    <ul>
+        <li><a href="#">Edit</a></li>
+        <li><a href="#">Delete</a></li>
+    </ul>
+{% endblock actions_column %}

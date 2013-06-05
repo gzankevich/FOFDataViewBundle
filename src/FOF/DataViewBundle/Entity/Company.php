@@ -4,14 +4,17 @@ namespace FOF\DataViewBundle\Entity;
 
 class Company
 {
-    protected $name, $website = null;
+    protected $name = null;
+    protected $website = null;
     protected $employees = array();
+    protected $building = null;
 
-    public function __construct($name, $website, array $employees)
+    public function __construct($name, $website, array $employees, Building $building)
     {
-        $this->name = $name;
-        $this->website = $website;
+        $this->name      = $name;
+        $this->website   = $website;
         $this->employees = $employees;
+        $this->building  = $building;
     }
 
     public function getName()
@@ -34,5 +37,10 @@ class Company
         foreach($this->getEmployees() as $employee) {
             if($employee->getIsCompanyOwner()) return $employee;
         }
+    }
+
+    public function getBuilding()
+    {
+        return $this->building;
     }
 }

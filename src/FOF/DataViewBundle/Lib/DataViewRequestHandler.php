@@ -54,7 +54,6 @@ class DataViewRequestHandler
             $sessionSettings = $this->loadSessionSettings($dataView);
 
             $this->handleSortOrder($dataView, $request);
-            // this must be done after setting the filters and sort order since it relies on the results already being pulled by the pager
             $this->handlePagination($dataView->getPager(), $request, intval($sessionSettings['page']));
 
             $this->saveSessionSettings($dataView);
@@ -69,6 +68,9 @@ class DataViewRequestHandler
     protected function clearSessionSettings()
     {
         $this->session->clear(self::SESSION_KEY);
+
+        // set the initial value or the first POST will result in page=0
+        $this->session->set(self::SESSION_KEY, array('page' => 1));
     }
 
     /**
@@ -104,6 +106,12 @@ class DataViewRequestHandler
      */
     protected function handlePagination(Pagerfanta $pager, Request $request, $oldPage)
     {
+        /* when Pagerfanta checks for out of range pages, it has to pull the results which makes it impossible to set the max results per page afterwards 
+         * i.e. with this option on, we cannot set the max results after bind
+         * if we try to set the max results before bind, DataView::createPager will have already been called without the filters/sort order being passed to it
+         */
+        $pager->setAllowOutOfRangePages(true);
+
         foreach($request->request->all() as $name => $order) {
             if($name == 'pagination_first_page') {
                 $pager->setCurrentPage(1);

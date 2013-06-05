@@ -1,3 +1,10 @@
+{% block data_view %}
+    {{ block('filters') }}
+    {{ block('table') }}
+    {{ block('pagination') }}
+    {{ block('script') }}
+{% endblock data_view %}
+
 {% block filters %}
     <div class="data_view_filters">
         <h2>Filters</h2>
@@ -87,7 +94,17 @@
         {% for column in dataView.columns %}
             <th>
                 {% if column.isSortable %}
-                    <button type="submit" name="sort_{{ column.templateFriendlyPropertyPath }}" value="{{ column.inverseSortOrder }}">{{ column.label }}</button>
+                <button type="submit" 
+                        name="sort_{{ column.templateFriendlyPropertyPath }}" 
+                        value="{{ column.inverseSortOrder }}" 
+                        {% if column.sortOrder == constant('\\DataView\\Column::SORT_ORDER_DESCENDING') %}
+                            class="data_view_column_sort_order_descending"
+                        {% elseif column.sortOrder == constant('\\DataView\\Column::SORT_ORDER_ASCENDING') %}
+                            class="data_view_column_sort_order_ascending"
+                        {% endif %}
+                        >
+                    {{ column.label }}
+                </button>
                 {% else %}
                    {{ column.label }} 
                 {% endif %}

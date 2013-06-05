@@ -26,6 +26,11 @@ class Employee
         return $this->lastName;
     }
 
+    public function getFullName()
+    {
+        return "{$this->getFirstName()} {$this->getLastName()}";
+    }
+
     public function getEmail()
     {
         return $this->email;
