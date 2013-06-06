@@ -86,7 +86,6 @@ class DataViewRequestHandlerTest extends BaseUnitTest
 
         $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
         $pager->expects($this->once())->method('setCurrentPage')->with($this->equalTo(1));
-        $pager->expects($this->once())->method('setAllowOutOfRangePages')->with($this->equalTo(true));
 
         $dataViewRequestHandler = new DataViewRequestHandler($formFactory, $session);
         $this->callNonPublicMethod($dataViewRequestHandler, 'handlePagination', array($pager, $request, 10));
@@ -103,7 +102,6 @@ class DataViewRequestHandlerTest extends BaseUnitTest
         $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
         $pager->expects($this->once())->method('getNbPages')->will($this->returnValue(10));
         $pager->expects($this->once())->method('setCurrentPage')->with($this->equalTo(10));
-        $pager->expects($this->once())->method('setAllowOutOfRangePages')->with($this->equalTo(true));
 
         $dataView = $this->getMockBuilder('\DataView\DataView')->disableOriginalConstructor()->getMock();
 
@@ -127,7 +125,6 @@ class DataViewRequestHandlerTest extends BaseUnitTest
 
         $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
         $pager->expects($this->once())->method('setCurrentPage')->with($this->equalTo(6));
-        $pager->expects($this->once())->method('setAllowOutOfRangePages')->with($this->equalTo(true));
 
         $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array('pagination_next_page' => '')));
@@ -149,7 +146,6 @@ class DataViewRequestHandlerTest extends BaseUnitTest
 
         $pager = $this->getMockBuilder('Pagerfanta\Pagerfanta')->disableOriginalConstructor()->getMock();
         $pager->expects($this->once())->method('setCurrentPage')->with($this->equalTo(4));
-        $pager->expects($this->once())->method('setAllowOutOfRangePages')->with($this->equalTo(true));
 
         $parameterBag = $this->getMock('\Symfony\Component\HttpFoundation\ParameterBag');
         $parameterBag->expects($this->once())->method('all')->will($this->returnValue(array('pagination_previous_page' => '')));

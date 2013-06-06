@@ -11,18 +11,57 @@ class DemoControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/dataviewtest/demo');
 
-        $this->assertEquals(2, $crawler->filter('table tbody tr')->count());
-        $this->assertEquals(9, $crawler->filter('table tbody>tr:first-child>td')->count());
+        // page 1
+        $this->assertEquals(2, $crawler->filter('table tbody tr')->count(), 'Page 1 has 2 rows');
+        $this->assertEquals(9, $crawler->filter('table tbody>tr:first-child>td')->count(), 'Number of columns');
+        $this->assertEquals(1, $crawler->filter('#current_page_number')->text(), 'Current page number');
 
         $this->assertTableContents($crawler, array(
             array('FreeOfficeFinder', 'http://www.freeofficefinder.com', 'Interlink House, Maygrove Road', 'Bob', 'Dole', 'bob.dole@gmail.com', '1234567890', 'listItems' => array('John Smith', 'George Zankevich')),
             array('Acme', 'http://www.acme.com', '123 Fake Street', 'Skye', 'Collins', 'skye.collins@gmail.com', '7234567890', 'listItems' => array('Logan Hunt')),
         ));
 
-        $form = $crawler->selectButton('Next')->form(array());
+        // Next page (page 2)
+        $form = $crawler->selectButton('pagination_next_page')->form(array());
         $crawler = $client->submit($form);
 
-        echo $client->getResponse()->getContent();
+        $this->assertEquals(2, $crawler->filter('table tbody tr')->count(), 'Page 2 has 2 rows');
+        $this->assertEquals(2, $crawler->filter('#current_page_number')->text(), 'Next goes to page 2');
+
+        $this->assertTableContents($crawler, array(
+            array('IBM', 'http://www.ibm.com', '76/78 Upper Ground', 'Sarah', 'Kerr', 'skye.collins@gmail.com', '3234567890', ''),
+            array('Sun', 'http://www.sun.com', '55 King William St', '', '', '', '', ''),
+        ));
+
+        // Previous page (page 1)
+        $form = $crawler->selectButton('pagination_previous_page')->form(array());
+        $crawler = $client->submit($form);
+
+        $this->assertEquals(1, $crawler->filter('#current_page_number')->text(), 'Previous goes back to page 1');
+
+        $this->assertTableContents($crawler, array(
+            array('FreeOfficeFinder'),
+            array('Acme'),
+        ));
+
+        // Last page (page 3)
+        $form = $crawler->selectButton('pagination_last_page')->form(array());
+        $crawler = $client->submit($form);
+
+        $this->assertEquals(1, $crawler->filter('table tbody tr')->count(), 'Page 3 has 1 row');
+        $this->assertEquals(3, $crawler->filter('#current_page_number')->text(), 'Last goes to page 3');
+
+        $this->assertTableContents($crawler, array(
+            array('Samsung', 'http://www.samsung.com', '105 Challenger Rd', 'Luke', 'Briggs', 'luke.briggs@gmail.com', '4234567890', ''),
+        ));
+
+        // First page (page 1)
+        $form = $crawler->selectButton('pagination_first_page')->form(array());
+        $crawler = $client->submit($form);
+
+        $this->assertEquals(1, $crawler->filter('#current_page_number')->text(), 'Last goes to page 3');
+
+        //echo $client->getResponse()->getContent();
     }
 
     protected function assertTableContents($crawler, array $expectedValues)

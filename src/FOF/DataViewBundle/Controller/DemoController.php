@@ -52,12 +52,12 @@ class DemoController extends Controller
             new Column(null, '', null, 'actions_column'),
         ));
 
+        // this must be called before DataViewRequestHandler::bind
+        // use a low number of results per page so that we don't need a tonne of data to test pagination
+        $dataView->setMaxPerPage(2);
+
         $dataViewRequestHandler = $this->get('data_view_request_handler');
         $dataViewRequestHandler->bind($dataView, $this->getRequest());
-
-        // this must be called after DataViewRequestHandler::bind or the pager will be created without the filters and sort order being applied to the query
-        // use a low number of results per page so that we don't need a tonne of data to test pagination
-        $dataView->getPager()->setMaxPerPage(2);
 
         return $this->render('FOFDataViewBundle:Demo:list.html.twig', array(
             'dataView' => $dataView, 

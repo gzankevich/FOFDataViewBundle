@@ -20,9 +20,9 @@ class DataViewRequestHandler
 {
     const SESSION_KEY = 'data_view';
 
-    protected $form, $formFactory, $session = null;
-    protected $isBound = false;
-    protected $currentPage = 1;
+    private $form = null;
+    private $formFactory = null;
+    private $session = null;
 
     /**
      * @param FormFactory $formFactory Used to instantiate the filter form
@@ -106,12 +106,6 @@ class DataViewRequestHandler
      */
     protected function handlePagination(Pagerfanta $pager, Request $request, $oldPage)
     {
-        /* when Pagerfanta checks for out of range pages, it has to pull the results which makes it impossible to set the max results per page afterwards 
-         * i.e. with this option on, we cannot set the max results after bind
-         * if we try to set the max results before bind, DataView::createPager will have already been called without the filters/sort order being passed to it
-         */
-        $pager->setAllowOutOfRangePages(true);
-
         foreach($request->request->all() as $name => $order) {
             if($name == 'pagination_first_page') {
                 $pager->setCurrentPage(1);
